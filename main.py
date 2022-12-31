@@ -45,28 +45,6 @@ def index():
 
 
 
-def makeTableForCurrentValues(current_values):
-  data_string = ""
-  
-  # Add table headers
-  data_string += "<tr><th>Date</th><th>Close</th><th>% Diff</th></tr>"
-  
-  for data in current_values:
-      date = data['date']
-      close = data['close']
-      percentage_difference = data['percentage_difference']
-      # Set cell color based on percentage_difference value
-      cell_color = get_cell_color(percentage_difference)
-      date_str = datetime.strftime(date, '%Y-%m-%d')
-      data_string += f"<tr><td>{date_str}</td><td>{close}</td><td bgcolor='{cell_color}'>{percentage_difference}</td></tr>"
-      
-  html_code = f"""
-    <table border="1">
-        {data_string}
-    </table>
-    """
-  
-  return html_code
   
 def makeVTableForCurrentValues(current_values):
   data_string = ""
@@ -98,42 +76,7 @@ def makeVTableForCurrentValues(current_values):
   
   return html_code
 
-def makeTableForMatchedEntries(data_dic):
-  data_string = ""
-  
-  for find, data in data_dic.items():
-        pattern = data[0]
-        indices = data[1]
-     
-    
-        cumulative_percentage = 0.0
-        data_string += f"<tr><td>{find}</td><td>{pattern}</td><td>"
-        for index in indices:
-            date = index['date']
-            close = index['close']
-            percentage_difference = index['percentage_difference']
-            cumulative_percentage += percentage_difference
-            date_str = datetime.strftime(date, '%Y-%m-%d')
-            data_string += f"{date_str} # {close} # {percentage_difference} <br>"
-        data_string+="</td>"
-        if cumulative_percentage < 0:
-            data_string += f"<td bgcolor='red'>{cumulative_percentage}</td></tr>"
-        else:
-            data_string += f"<td bgcolor='green'>{cumulative_percentage}</td></tr>"
-    
-  html_code = f"""
-    <table border="1">
-        <tr>
-            <th>Find</th>
-            <th>Pattern</th>
-            <th>Indices</th>
-            <th>Cumulative Percentage</th>
-        </tr>
-        {data_string}
-    </table>
-    """
-  
-  return html_code
+
 
 def makeVTableForMatchedEntries(data_dic):
   data_string = ""
@@ -256,8 +199,13 @@ def plot():
 
 
 def getStockData(arg_method='ASX'):
-  axjo = yf.Ticker("^AXJO")
-  arrayData = axjo.history(period="max")
+  
+  instrument =""
+  if arg_method=="ASX":
+    instrument=yf.Ticker("^AXJO")
+  elif arg_method=="NDQ":
+    instrument=yf.Ticker("^IXIC")
+  arrayData = instrument.history(period="max")
   #for col in arrayData.columns:
   # print(col)
   #open , high ,low close
